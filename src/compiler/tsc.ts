@@ -235,6 +235,9 @@ namespace ts {
             return sys.exit(ExitStatus.Success);
         }
 
+        if(commandLine.options.stdio) {
+            sys.useStdio(false);
+        }
         if (commandLine.options.project) {
             if (!isJSONSupported()) {
                 reportDiagnostic(createCompilerDiagnostic(Diagnostics.The_current_host_does_not_support_the_0_option, "--project"), /* host */ undefined);
@@ -264,6 +267,9 @@ namespace ts {
         else if (commandLine.fileNames.length === 0 && isJSONSupported()) {
             const searchPath = normalizePath(sys.getCurrentDirectory());
             configFileName = findConfigFile(searchPath, sys.fileExists);
+        }
+        if(commandLine.options.stdio) {
+            sys.useStdio(commandLine.options.stdio);
         }
 
         if (commandLine.fileNames.length === 0 && !configFileName) {

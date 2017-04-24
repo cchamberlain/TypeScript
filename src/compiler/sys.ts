@@ -20,7 +20,7 @@ namespace ts {
         readFile(path: string, encoding?: string): string;
         getFileSize?(path: string): number;
         writeFile(path: string, data: string, writeByteOrderMark?: boolean): void;
-        useStdio?(bool: true): void;
+        useStdio?(enable: boolean): void;
         /**
          * @pollingInterval - this parameter is used in polling-based watchers and ignored in watchers that
          * use native OS file watching
@@ -103,6 +103,8 @@ namespace ts {
             const _path = require("path");
             const _os = require("os");
             const _crypto = require("crypto");
+
+            let _memoryData: { [key: string]: string } = null;
 
             const useNonPollingWatchers = process.env["TSC_NONPOLLING_WATCHER"];
 
@@ -312,13 +314,18 @@ namespace ts {
             }
 
             function useStdio(enable: boolean) {
-                if (enable) {
-                    const old = _fs;
-                    _fs = new (require("memory-fs"))();
-                    _fs._old = old;
-                } else if (_fs._old) {
-                    const __fs = _fs._old;
-                    _fs = __fs;
+                if (enable && !_fs._original) {
+                    const MemoryFS = require("memory-fs");
+                    if (_memoryData === null) {
+                        _memoryData = {};
+                    }
+                    const originalFS = _fs;
+                    _fs = new MemoryFS(_memoryData);
+                    _fs._originalFS = originalFS;
+                }
+                else if (!enable && _fs._originalFS) {
+                    const originalFS = _fs._originalFS;
+                    _fs = originalFS;
                 }
             }
 
@@ -436,6 +443,8 @@ namespace ts {
                     return 0;
                 },
                 exit(exitCode?: number): void {
+                    if(_memoryData !== null)
+                        process.stdout.write(JSON.stringify(_memoryData));
                     process.exit(exitCode);
                 },
                 realpath(path: string): string {
