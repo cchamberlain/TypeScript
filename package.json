@@ -1,5 +1,5 @@
 {
-    "name": "typescript",
+    "name": "typescript-stdio",
     "author": "Microsoft Corp.",
     "homepage": "http://typescriptlang.org/",
     "version": "2.3.0",
@@ -22,8 +22,8 @@
     "main": "./lib/typescript.js",
     "typings": "./lib/typescript.d.ts",
     "bin": {
-        "tsc": "./bin/tsc",
-        "tsserver": "./bin/tsserver"
+        "tsc-stdio": "./bin/tsc",
+        "tsserver-stdio": "./bin/tsserver"
     },
     "engines": {
         "node": ">=4.2.0"
