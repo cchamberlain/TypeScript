@@ -200,9 +200,6 @@ namespace ts {
         let cachedExistingFiles: Map<boolean>;
         let hostFileExists: typeof compilerHost.fileExists;
 
-        if (commandLine.options.stdio) {
-            sys.useStdio(commandLine.options.stdio);
-        }
 
         if (commandLine.options.locale) {
             if (!isJSONSupported()) {
@@ -235,9 +232,6 @@ namespace ts {
             return sys.exit(ExitStatus.Success);
         }
 
-        if(commandLine.options.stdio) {
-            sys.useStdio(false);
-        }
         if (commandLine.options.project) {
             if (!isJSONSupported()) {
                 reportDiagnostic(createCompilerDiagnostic(Diagnostics.The_current_host_does_not_support_the_0_option, "--project"), /* host */ undefined);
@@ -267,9 +261,6 @@ namespace ts {
         else if (commandLine.fileNames.length === 0 && isJSONSupported()) {
             const searchPath = normalizePath(sys.getCurrentDirectory());
             configFileName = findConfigFile(searchPath, sys.fileExists);
-        }
-        if(commandLine.options.stdio) {
-            sys.useStdio(commandLine.options.stdio);
         }
 
         if (commandLine.fileNames.length === 0 && !configFileName) {
@@ -378,7 +369,17 @@ namespace ts {
             // reset the cache of existing files
             cachedExistingFiles = createMap<boolean>();
 
+            // if stdio option set, monkey patch fs and capture IO in object
+            if(compilerOptions.stdio && sys.useStdio) {
+                sys.useStdio(true);
+            }
+
             const compileResult = compile(rootFileNames, compilerOptions, compilerHost);
+
+            // if stdio option, undo the monkey patch to stop capture
+            if(compilerOptions.stdio && sys.useStdio) {
+                sys.useStdio(false);
+            }
 
             if (!isWatchSet(compilerOptions)) {
                 return sys.exit(compileResult.exitStatus);

@@ -328,6 +328,8 @@ namespace ts {
                     _memoryData.log += `${Date.now()}: disabled\n`
                     const originalFS = _fs._originalFS;
                     _fs = originalFS;
+                    if(_fs._originalFS)
+                        throw new Error("_originalFS should not exist anymore.")
                 }
             }
 
