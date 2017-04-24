@@ -39,6 +39,13 @@ namespace ts {
             description: Diagnostics.Print_the_compiler_s_version,
         },
         {
+            name: "stdio",
+            type: "boolean",
+            showInSimplifiedHelpView: true,
+            category: Diagnostics.Command_line_Options,
+            description: Diagnostics.Allows_compilation_of_a_stdin_stream_to_stdout
+        },
+        {
             name: "init",
             type: "boolean",
             showInSimplifiedHelpView: true,

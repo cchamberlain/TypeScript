@@ -200,6 +200,10 @@ namespace ts {
         let cachedExistingFiles: Map<boolean>;
         let hostFileExists: typeof compilerHost.fileExists;
 
+        if (commandLine.options.stdio) {
+            sys.useStdio(commandLine.options.stdio);
+        }
+
         if (commandLine.options.locale) {
             if (!isJSONSupported()) {
                 reportDiagnostic(createCompilerDiagnostic(Diagnostics.The_current_host_does_not_support_the_0_option, "--locale"), /* host */ undefined);
@@ -343,7 +347,6 @@ namespace ts {
 
         // Invoked to perform initial compilation or re-compilation in watch mode
         function performCompilation() {
-
             if (!cachedProgram) {
                 if (configFileName) {
                     const configParseResult = parseConfigFile();

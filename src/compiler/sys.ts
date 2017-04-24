@@ -20,6 +20,7 @@ namespace ts {
         readFile(path: string, encoding?: string): string;
         getFileSize?(path: string): number;
         writeFile(path: string, data: string, writeByteOrderMark?: boolean): void;
+        useStdio?(bool: true): void;
         /**
          * @pollingInterval - this parameter is used in polling-based watchers and ignored in watchers that
          * use native OS file watching
@@ -98,7 +99,7 @@ namespace ts {
 
     export let sys: System = (function() {
         function getNodeSystem(): System {
-            const _fs = require("fs");
+            let _fs = require("fs");
             const _path = require("path");
             const _os = require("os");
             const _crypto = require("crypto");
@@ -310,6 +311,17 @@ namespace ts {
                 return filter<string>(_fs.readdirSync(path), dir => fileSystemEntryExists(combinePaths(path, dir), FileSystemEntryKind.Directory));
             }
 
+            function useStdio(enable: boolean) {
+                if (enable) {
+                    const old = _fs;
+                    _fs = new (require("memory-fs"))();
+                    _fs._old = old;
+                } else if (_fs._old) {
+                    const __fs = _fs._old;
+                    _fs = __fs;
+                }
+            }
+
             const noOpFileWatcher: FileWatcher = { close: noop };
             const nodeSystem: System = {
                 args: process.argv.slice(2),
@@ -320,6 +332,7 @@ namespace ts {
                 },
                 readFile,
                 writeFile,
+                useStdio,
                 watchFile: (fileName, callback, pollingInterval) => {
                     if (useNonPollingWatchers) {
                         const watchedFile = watchedFileSet.addFile(fileName, callback);
@@ -458,7 +471,6 @@ namespace ts {
                     if (writeByteOrderMark) {
                         data = "\uFEFF" + data;
                     }
-
                     ChakraHost.writeFile(path, data);
                 },
                 resolvePath: ChakraHost.resolvePath,

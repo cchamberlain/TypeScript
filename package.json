@@ -96,5 +96,8 @@
         "fs": false,
         "os": false,
         "path": false
+    },
+    "dependencies": {
+        "memory-fs": "^0.4.1"
     }
 }

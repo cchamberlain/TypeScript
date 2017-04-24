@@ -3441,6 +3441,7 @@ namespace ts {
         skipDefaultLibCheck?: boolean;
         sourceMap?: boolean;
         sourceRoot?: string;
+        stdio?: boolean;
         strict?: boolean;
         strictNullChecks?: boolean;  // Always combine with strict property
         /* @internal */ stripInternal?: boolean;
