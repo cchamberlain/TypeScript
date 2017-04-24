@@ -314,16 +314,18 @@ namespace ts {
             }
 
             function useStdio(enable: boolean) {
-                if (enable && !_fs._original) {
+                if (enable && !_fs._originalFS) {
                     const MemoryFS = require("memory-fs");
                     if (_memoryData === null) {
-                        _memoryData = {};
+                        _memoryData = { log: "" };
                     }
+                    _memoryData.log += `${Date.now()}: enabled\n`
                     const originalFS = _fs;
                     _fs = new MemoryFS(_memoryData);
                     _fs._originalFS = originalFS;
                 }
                 else if (!enable && _fs._originalFS) {
+                    _memoryData.log += `${Date.now()}: disabled\n`
                     const originalFS = _fs._originalFS;
                     _fs = originalFS;
                 }
